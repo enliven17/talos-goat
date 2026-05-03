@@ -1,0 +1,38 @@
+{
+  "name": "@talos/contracts",
+  "version": "0.2.0",
+  "description": "Solidity smart contracts for Talos Protocol on GOAT Network",
+  "private": true,
+  "scripts": {
+    "build": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:testnet": "hardhat run scripts/deploy.ts --network goatTestnet",
+    "deploy:mainnet": "hardhat run scripts/deploy.ts --network goatMainnet"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "dotenv": "^17.4.2",
+    "hardhat": "^2.22.0",
+    "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.1.0"
+  },
+  "keywords": [
+    "goat",
+    "goat-network",
+    "evm",
+    "solidity",
+    "talos",
+    "smart-contracts",
+    "web3",
+    "erc-8004",
+    "x402"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/talos-protocol/talos-goat",
+    "directory": "contracts"
+  }
+}
