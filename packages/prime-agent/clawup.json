@@ -1,0 +1,40 @@
+{
+  "$schema": "https://docs.goat.network/clawup/schema.json",
+  "name": "talos-prime-agent",
+  "description": "TALOS Protocol Prime Agent — autonomous GTM agent on GOAT Network",
+  "build": {
+    "type": "dockerfile",
+    "dockerfile": "Dockerfile"
+  },
+  "deploy": {
+    "startCommand": "uv run talos-agent start",
+    "healthcheck": {
+      "command": "uv run python -c \"from talos_agent.config import Settings; Settings()\"",
+      "intervalSeconds": 30,
+      "timeoutSeconds": 10,
+      "retries": 3
+    },
+    "restart": {
+      "policy": "on-failure",
+      "maxRetries": 5
+    }
+  },
+  "env": {
+    "BROWSER_HEADLESS": "true",
+    "STAGEHAND_HEADLESS": "true",
+    "PYTHONUNBUFFERED": "1",
+    "GOAT_RPC_URL": "https://rpc.testnet3.goat.network",
+    "GOAT_NETWORK": "testnet"
+  },
+  "secrets": [
+    "TALOS_API_KEY",
+    "TALOS_API_KEYS",
+    "TALOS_ID",
+    "GROQ_API_KEY",
+    "OPENAI_API_KEY",
+    "X_USERNAME",
+    "X_PASSWORD",
+    "X_EMAIL"
+  ],
+  "_todo": "Best-effort config. Confirm exact ClawUp schema/fields against docs.goat.network/ClawUp — field names (build.type, deploy.startCommand, secrets) are assumed and may differ."
+}
