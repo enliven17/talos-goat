@@ -16,6 +16,23 @@
   --nav-accent: #F5AFAF;
 }
 
+/* Dark — applied when <html data-theme="dark"> */
+html[data-theme="dark"] {
+  --background: #0F0D0D;
+  --foreground: #ECE6E6;
+  --accent: #F5AFAF;
+  --accent-cta: #F5AFAF;
+  --muted: #8E8383;
+  --border: #2A2222;
+  --surface: #181414;
+  --surface-hover: #221A1A;
+
+  --nav-foreground: #ECE6E6;
+  --nav-accent: #F5AFAF;
+
+  color-scheme: dark;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

@@ -22,8 +22,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${ruthie.variable} h-full antialiased bg-background`} style={{ colorScheme: "light", backgroundColor: "#FCF8F8" }}>
-      <body className="min-h-full flex flex-col bg-background text-foreground font-mono" style={{ backgroundColor: "#FCF8F8" }}>
+    <html lang="en" suppressHydrationWarning className={`${ruthie.variable} h-full antialiased bg-background`}>
+      <head>
+        {/* Resolve the persisted/preferred theme before paint to avoid a flash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('talos-theme');if(t!=='dark'&&t!=='light'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t;}catch(_){}})();`,
+          }}
+        />
+      </head>
+      <body className="min-h-full flex flex-col bg-background text-foreground font-mono">
         <SplashScreen />
         <Providers>
           <Header />
