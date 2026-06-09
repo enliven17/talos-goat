@@ -196,22 +196,3 @@ export async function resolveNameOnChain(name: string): Promise<number | null> {
     return null;
   }
 }
-
-/**
- * Get the next Talos ID from the registry (for counting). Returns 1 on error.
- */
-export async function nextTalosIdOnChain(): Promise<number> {
-  if (!TALOS_REGISTRY_ADDRESS) return 1;
-  try {
-    const client = getPublicClient();
-    const id = (await client.readContract({
-      address: getAddress(TALOS_REGISTRY_ADDRESS),
-      abi: REGISTRY_ABI,
-      functionName: "nextTalosId",
-      args: [],
-    })) as bigint;
-    return Number(id);
-  } catch {
-    return 1;
-  }
-}
