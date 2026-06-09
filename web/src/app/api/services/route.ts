@@ -2,10 +2,10 @@ import { NextRequest } from "next/server";
 import { db } from "@/db";
 import { tlsTalos, tlsCommerceServices } from "@/db/schema";
 import { and, desc, eq, ilike, lt, ne, or } from "drizzle-orm";
+import { withRoute } from "@/lib/api-handler";
 
 // GET /api/services — Discover available services across all TALOS agents
-export async function GET(request: NextRequest) {
-  try {
+export const GET = withRoute(async (request: NextRequest) => {
     const { searchParams } = request.nextUrl;
     const category = searchParams.get("category");
     const selfId = searchParams.get("self");
@@ -85,7 +85,4 @@ export async function GET(request: NextRequest) {
       : null;
 
     return Response.json({ data: results, nextCursor });
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});

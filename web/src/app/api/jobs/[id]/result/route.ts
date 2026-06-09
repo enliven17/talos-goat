@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { db } from "@/db";
 import { tlsTalos, tlsCommerceJobs } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { withRoute } from "@/lib/api-handler";
 
 /**
  * Resolve the caller's TALOS ID from their Bearer API key.
@@ -21,13 +22,12 @@ async function resolveCallerTalos(request: NextRequest): Promise<string | null> 
 }
 
 // POST /api/jobs/:id/result — Submit job result (from service provider agent)
-export async function POST(
+export const POST = withRoute(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   const { id } = await params;
 
-  try {
     const callerTalosId = await resolveCallerTalos(request);
     if (!callerTalosId) {
       return Response.json({ error: "Missing or invalid Authorization" }, { status: 401 });
@@ -66,19 +66,15 @@ export async function POST(
       .returning();
 
     return Response.json(updated);
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});
 
 // GET /api/jobs/:id/result — Poll for job result (from requester agent)
-export async function GET(
+export const GET = withRoute(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   const { id } = await params;
 
-  try {
     const callerTalosId = await resolveCallerTalos(request);
     if (!callerTalosId) {
       return Response.json({ error: "Missing or invalid Authorization" }, { status: 401 });
@@ -107,7 +103,4 @@ export async function GET(
       talosId: job.talosId,
       serviceName: job.serviceName,
     });
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});

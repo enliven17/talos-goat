@@ -2,20 +2,19 @@ import { NextRequest } from "next/server";
 import { db } from "@/db";
 import { tlsTalos, tlsApprovals, tlsPatrons } from "@/db/schema";
 import { and, desc, eq } from "drizzle-orm";
-import { verifyAgentApiKey } from "@/lib/auth";
+import { withRoute } from "@/lib/api-handler";
 
 // GET /api/talos/:id/approvals — Pending approval list
 // Public read (no auth) — patrons need to see approvals to vote
 // Agent-authenticated write is handled in POST
-export async function GET(
+export const GET = withRoute(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   const { id } = await params;
   const { searchParams } = new URL(request.url);
   const status = searchParams.get("status"); // optional filter: pending | approved | rejected
 
-  try {
     const rows = await db
       .select()
       .from(tlsApprovals)
@@ -27,20 +26,16 @@ export async function GET(
       .orderBy(desc(tlsApprovals.createdAt));
 
     return Response.json(rows);
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});
 
 // POST /api/talos/:id/approvals — Create approval request
 // Can be called by: local agent (Bearer api_key) OR active patron (proposerPublicKey)
-export async function POST(
+export const POST = withRoute(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   const { id } = await params;
 
-  try {
     const talos = await db
       .select()
       .from(tlsTalos)
@@ -134,7 +129,4 @@ export async function POST(
       .returning();
 
     return Response.json(approval, { status: 201 });
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});

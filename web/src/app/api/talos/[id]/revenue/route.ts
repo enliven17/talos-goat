@@ -2,16 +2,15 @@ import { NextRequest } from "next/server";
 import { db } from "@/db";
 import { tlsTalos, tlsRevenues } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
-import { verifyAgentApiKey } from "@/lib/auth";
+import { requireAgent, withRoute } from "@/lib/api-handler";
 
 // GET /api/talos/:id/revenue — Get revenue history
-export async function GET(
+export const GET = withRoute(async (
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   const { id } = await params;
 
-  try {
     const talos = await db
       .select({ id: tlsTalos.id })
       .from(tlsTalos)
@@ -31,22 +30,17 @@ export async function GET(
       .limit(50);
 
     return Response.json(revenues);
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});
 
 // POST /api/talos/:id/revenue — Report revenue (from Local Agent)
 // All revenue stays in Agent Treasury. No distribution to external wallets.
-export async function POST(
+export const POST = withRoute(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   const { id } = await params;
 
-  try {
-    const auth = await verifyAgentApiKey(request, id);
-    if (!auth.ok) return auth.response;
+    await requireAgent(request, id);
 
     const body = await request.json();
     const { amount, currency, source, txHash } = body;
@@ -95,7 +89,4 @@ export async function POST(
       .returning();
 
     return Response.json(revenue, { status: 201 });
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});

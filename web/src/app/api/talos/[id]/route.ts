@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { tlsTalos } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { withRoute } from "@/lib/api-handler";
 
 function maskApiKey(key: string | null): string | null {
   if (!key || key.length < 12) return null;
@@ -8,13 +9,12 @@ function maskApiKey(key: string | null): string | null {
 }
 
 // GET /api/talos/:id — TALOS detail + configuration
-export async function GET(
+export const GET = withRoute(async (
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   const { id } = await params;
 
-  try {
     const talos = await db.query.tlsTalos.findFirst({
       where: eq(tlsTalos.id, id),
       with: {
@@ -32,7 +32,4 @@ export async function GET(
 
     const { apiKey, ...safeTalos } = talos;
     return Response.json({ ...safeTalos, apiKeyMasked: maskApiKey(apiKey) });
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});

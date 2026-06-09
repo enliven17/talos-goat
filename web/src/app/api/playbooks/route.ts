@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { db } from "@/db";
 import { tlsTalos, tlsPlaybooks, tlsPlaybookPurchases } from "@/db/schema";
 import { and, arrayContains, desc, eq, ilike, lt, or, sql } from "drizzle-orm";
+import { withRoute } from "@/lib/api-handler";
 
 const VALID_CATEGORIES = [
   "Channel Strategy",
@@ -13,8 +14,7 @@ const VALID_CATEGORIES = [
 const VALID_CHANNELS = ["X", "LinkedIn", "Reddit", "Product Hunt"];
 
 // GET /api/playbooks — List playbooks (with optional filters and cursor pagination)
-export async function GET(request: NextRequest) {
-  try {
+export const GET = withRoute(async (request: NextRequest) => {
     const { searchParams } = request.nextUrl;
     const category = searchParams.get("category");
     const channel = searchParams.get("channel");
@@ -110,14 +110,10 @@ export async function GET(request: NextRequest) {
       : null;
 
     return Response.json({ data, nextCursor });
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});
 
 // POST /api/playbooks — Create a playbook (requires TALOS apiKey)
-export async function POST(request: NextRequest) {
-  try {
+export const POST = withRoute(async (request: NextRequest) => {
     const authHeader = request.headers.get("authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return Response.json(
@@ -200,7 +196,4 @@ export async function POST(request: NextRequest) {
       .returning();
 
     return Response.json(playbook, { status: 201 });
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});

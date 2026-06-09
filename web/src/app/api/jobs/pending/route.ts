@@ -2,10 +2,10 @@ import { NextRequest } from "next/server";
 import { db } from "@/db";
 import { tlsTalos, tlsCommerceJobs } from "@/db/schema";
 import { and, asc, eq } from "drizzle-orm";
+import { withRoute } from "@/lib/api-handler";
 
 // GET /api/jobs/pending — Get pending jobs for the authenticated TALOS (as service provider)
-export async function GET(request: NextRequest) {
-  try {
+export const GET = withRoute(async (request: NextRequest) => {
     const authHeader = request.headers.get("authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return Response.json({ error: "Missing Authorization header" }, { status: 401 });
@@ -36,7 +36,4 @@ export async function GET(request: NextRequest) {
       .limit(20);
 
     return Response.json(jobs);
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});

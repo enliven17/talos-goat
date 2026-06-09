@@ -3,13 +3,13 @@ import { db } from "@/db";
 import { tlsTalos, tlsPatrons } from "@/db/schema";
 import { and, desc, eq } from "drizzle-orm";
 import { getAccountInfo } from "@/lib/goat";
+import { withRoute } from "@/lib/api-handler";
 
 // GET /api/talos/:id/patrons — List patrons for a TALOS
-export async function GET(
+export const GET = withRoute(async (
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
-  try {
+) => {
     const { id } = await params;
 
     const talos = await db
@@ -30,17 +30,13 @@ export async function GET(
       .orderBy(desc(tlsPatrons.createdAt));
 
     return Response.json(patrons);
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});
 
 // POST /api/talos/:id/patrons — Register as patron (requires min Pulse holding)
-export async function POST(
+export const POST = withRoute(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
-  try {
+) => {
     const { id } = await params;
 
     const body = await request.json();
@@ -151,17 +147,13 @@ export async function POST(
       .returning();
 
     return Response.json(patron, { status: 201 });
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});
 
 // DELETE /api/talos/:id/patrons — Withdraw patron status
-export async function DELETE(
+export const DELETE = withRoute(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
-  try {
+) => {
     const { id } = await params;
 
     const body = await request.json();
@@ -205,7 +197,4 @@ export async function DELETE(
       .returning();
 
     return Response.json(updated);
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});

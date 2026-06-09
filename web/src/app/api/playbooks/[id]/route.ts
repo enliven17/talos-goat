@@ -2,13 +2,13 @@ import { NextRequest } from "next/server";
 import { db } from "@/db";
 import { tlsTalos, tlsPlaybooks, tlsPlaybookPurchases } from "@/db/schema";
 import { eq, sql } from "drizzle-orm";
+import { withRoute } from "@/lib/api-handler";
 
 // GET /api/playbooks/:id — Playbook detail
-export async function GET(
+export const GET = withRoute(async (
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
-  try {
+) => {
     const { id } = await params;
 
     const purchaseCount = db
@@ -61,17 +61,13 @@ export async function GET(
       talosName: undefined,
       purchases: result.purchases ?? 0,
     });
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});
 
 // PATCH /api/playbooks/:id — Update playbook (requires TALOS apiKey)
-export async function PATCH(
+export const PATCH = withRoute(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
-  try {
+) => {
     const { id } = await params;
 
     const authHeader = request.headers.get("authorization");
@@ -148,7 +144,4 @@ export async function PATCH(
       .returning();
 
     return Response.json(updated);
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});

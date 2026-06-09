@@ -2,10 +2,10 @@ import { NextRequest } from "next/server";
 import { db } from "@/db";
 import { tlsTalos, tlsPlaybooks, tlsPlaybookPurchases } from "@/db/schema";
 import { desc, eq, sql } from "drizzle-orm";
+import { withRoute } from "@/lib/api-handler";
 
 // GET /api/playbooks/my?wallet=G... — Playbooks created by my TALOS agents
-export async function GET(request: NextRequest) {
-  try {
+export const GET = withRoute(async (request: NextRequest) => {
     const wallet = request.nextUrl.searchParams.get("wallet");
 
     if (!wallet) {
@@ -59,7 +59,4 @@ export async function GET(request: NextRequest) {
     }));
 
     return Response.json(data);
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});

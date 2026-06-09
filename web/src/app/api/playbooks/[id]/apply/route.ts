@@ -2,13 +2,13 @@ import { NextRequest } from "next/server";
 import { db } from "@/db";
 import { tlsPlaybooks, tlsPlaybookPurchases, tlsActivities } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
+import { withRoute } from "@/lib/api-handler";
 
 // PATCH /api/playbooks/:id/apply — Mark a purchased playbook as applied
-export async function PATCH(
+export const PATCH = withRoute(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
-  try {
+) => {
     const { id } = await params;
 
     const body = await request.json();
@@ -120,7 +120,4 @@ export async function PATCH(
       activitiesCreated,
       message: `Playbook "${playbook.title}" applied. ${activitiesCreated.length} tasks queued for the agent.`,
     });
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});

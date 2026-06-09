@@ -2,18 +2,16 @@ import { NextRequest } from "next/server";
 import { db } from "@/db";
 import { tlsTalos } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { verifyAgentApiKey } from "@/lib/auth";
+import { requireAgent, withRoute } from "@/lib/api-handler";
 
 // GET /api/talos/:id/wallet — Agent fetches its GOAT (EVM) wallet info at startup
-export async function GET(
+export const GET = withRoute(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   const { id } = await params;
 
-  try {
-    const auth = await verifyAgentApiKey(request, id);
-    if (!auth.ok) return auth.response;
+    await requireAgent(request, id);
 
     const talos = await db
       .select({
@@ -33,7 +31,4 @@ export async function GET(
       agentWalletId: talos.agentWalletId,
       agentWalletAddress: talos.agentWalletAddress,
     });
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});

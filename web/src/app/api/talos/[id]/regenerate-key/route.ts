@@ -5,16 +5,16 @@ import { eq } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import { verifyMessage } from "viem";
 import { regenerateKeySchema, parseBody } from "@/lib/schemas";
+import { withRoute } from "@/lib/api-handler";
 
 // POST /api/talos/:id/regenerate-key — Regenerate API key (invalidates old key)
 // Requires an EVM (EIP-191 personal_sign) signature proving wallet ownership.
-export async function POST(
+export const POST = withRoute(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   const { id } = await params;
 
-  try {
     const parsed = await parseBody(request, regenerateKeySchema);
     if (parsed.error) return parsed.error;
 
@@ -67,7 +67,4 @@ export async function POST(
       .where(eq(tlsTalos.id, id));
 
     return Response.json({ apiKey: newApiKey });
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});

@@ -3,15 +3,15 @@ import { db } from "@/db";
 import { tlsTalos, tlsApprovals, tlsPatrons } from "@/db/schema";
 import { and, eq, sql } from "drizzle-orm";
 import { recordApprovalOnChain } from "@/lib/goat";
+import { withRoute } from "@/lib/api-handler";
 
 // PATCH /api/talos/:id/approvals/:approvalId — Approve/reject
-export async function PATCH(
+export const PATCH = withRoute(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string; approvalId: string }> }
-) {
+) => {
   const { id, approvalId } = await params;
 
-  try {
     const talos = await db
       .select({ id: tlsTalos.id })
       .from(tlsTalos)
@@ -92,7 +92,4 @@ export async function PATCH(
       .returning();
 
     return Response.json(approval);
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});

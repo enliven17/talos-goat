@@ -1,10 +1,10 @@
 import { db } from "@/db";
 import { tlsTalos, tlsPatrons, tlsActivities, tlsRevenues } from "@/db/schema";
 import { eq, sql } from "drizzle-orm";
+import { withRoute } from "@/lib/api-handler";
 
 // GET /api/leaderboard — Ranking data
-export async function GET() {
-  try {
+export const GET = withRoute(async () => {
     const patronCount = db
       .select({
         talosId: tlsPatrons.talosId,
@@ -65,7 +65,4 @@ export async function GET() {
     leaderboard.sort((a, b) => b.totalRevenue - a.totalRevenue);
 
     return Response.json(leaderboard);
-  } catch {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+});
