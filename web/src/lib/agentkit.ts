@@ -20,16 +20,6 @@ import {
   normalizePrivateKey,
 } from "./goat-chain";
 
-/** Whether the AgentKit package resolves at runtime. */
-export async function agentKitAvailable(): Promise<boolean> {
-  try {
-    await import("@goatnetwork/agentkit");
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 /** A `GoatAdapter` for the configured network (x402 + bitvm2 bridge API). */
 export async function getGoatAdapter() {
   const { GoatAdapter } = await import("@goatnetwork/agentkit");

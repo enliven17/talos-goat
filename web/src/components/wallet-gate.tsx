@@ -9,11 +9,6 @@ interface WalletGateProps {
   description?: string;
 }
 
-/** EVM address shape: 0x followed by 40 hex chars. */
-export function isEvmAddress(value: string | null | undefined): value is string {
-  return typeof value === "string" && /^0x[a-fA-F0-9]{40}$/.test(value);
-}
-
 export function WalletGate({
   children,
   title = "Connect Wallet to Continue",
@@ -58,37 +53,14 @@ export function WalletGate({
   );
 }
 
-export function ConnectWalletButton({
-  label = "Connect Wallet",
-  className = "",
-}: {
-  label?: string;
-  className?: string;
-}) {
-  const { isConnected, connect } = useGoatWallet();
-
-  if (isConnected) return null;
-
-  return (
-    <button
-      onClick={connect}
-      className={`border border-border px-4 py-2 text-sm text-foreground hover:bg-surface-hover transition-colors ${className}`}
-    >
-      {label}
-    </button>
-  );
-}
-
 /** RainbowKit's native connect/account button, for callers that want it. */
 export { ConnectButton };
 
 export function useWallet() {
-  const { isConnected, publicKey, connect, signTransaction } = useGoatWallet();
+  const { isConnected, publicKey, connect } = useGoatWallet();
   return {
     isConnected,
     address: publicKey,
     connect,
-    /** @deprecated Stellar XDR signing removed on GOAT — use wagmi useWriteContract. */
-    signTransaction,
   };
 }

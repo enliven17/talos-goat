@@ -39,22 +39,12 @@ const wagmiConfig = getDefaultConfig({
 
 const queryClient = new QueryClient();
 
-/** Re-exported so existing imports keep working. The RainbowKit modal lists
- *  the actual installed wallets (MetaMask etc.); these descriptors are no
- *  longer used to render a custom modal. */
-export const WALLET_OPTIONS = [
-  { id: "metaMask", name: "MetaMask", icon: "🦊", desc: "Browser extension" },
-  { id: "walletConnect", name: "WalletConnect", icon: "🔗", desc: "Mobile & web" },
-] as const;
-
 interface WalletContextValue {
   /** Connected EVM address (was Stellar public key). */
   publicKey: string | null;
   isConnected: boolean;
   connect: () => void;
   disconnect: () => void;
-  /** @deprecated Stellar XDR signing removed; use wagmi `useWriteContract`. */
-  signTransaction: (xdr: string) => Promise<string>;
   showWalletModal: boolean;
   setShowWalletModal: (v: boolean) => void;
 }
@@ -64,7 +54,6 @@ const WalletContext = createContext<WalletContextValue>({
   isConnected: false,
   connect: () => {},
   disconnect: () => {},
-  signTransaction: async () => "",
   showWalletModal: false,
   setShowWalletModal: () => {},
 });
@@ -83,11 +72,6 @@ function WalletContextBridge({ children }: { children: ReactNode }) {
     isConnected,
     connect: () => openConnectModal?.(),
     disconnect: () => wagmiDisconnect(),
-    signTransaction: async () => {
-      throw new Error(
-        "signTransaction(xdr) is removed on GOAT — use wagmi useWriteContract.",
-      );
-    },
     showWalletModal: false,
     setShowWalletModal: () => openConnectModal?.(),
   };
