@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { tlsTalos } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAgent, withRoute } from "@/lib/api-handler";
+import { parseBody, updateStatusSchema } from "@/lib/schemas";
 
 // PATCH /api/talos/:id/status — Agent status update (online/offline)
 export const PATCH = withRoute(async (
@@ -13,15 +14,9 @@ export const PATCH = withRoute(async (
 
     await requireAgent(request, id);
 
-    const body = await request.json();
-    const { agentOnline } = body;
-
-    if (typeof agentOnline !== "boolean") {
-      return Response.json(
-        { error: "agentOnline must be a boolean" },
-        { status: 400 }
-      );
-    }
+    const parsed = await parseBody(request, updateStatusSchema);
+    if (parsed.error) return parsed.error;
+    const { agentOnline } = parsed.data;
 
     const [updated] = await db
       .update(tlsTalos)

@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { tlsTalos, tlsApprovals, tlsPatrons } from "@/db/schema";
 import { and, desc, eq } from "drizzle-orm";
 import { withRoute } from "@/lib/api-handler";
+import { parseBody, createApprovalSchema } from "@/lib/schemas";
 
 // GET /api/talos/:id/approvals — Pending approval list
 // Public read (no auth) — patrons need to see approvals to vote
@@ -47,8 +48,9 @@ export const POST = withRoute(async (
       return Response.json({ error: "TALOS not found" }, { status: 404 });
     }
 
-    const body = await request.json();
-    const { type, title, description, amount, proposerPublicKey } = body;
+    const parsed = await parseBody(request, createApprovalSchema);
+    if (parsed.error) return parsed.error;
+    const { type, title, description, amount, proposerPublicKey } = parsed.data;
 
     // Auth: either agent API key or active patron
     const authHeader = request.headers.get("authorization");
@@ -67,29 +69,6 @@ export const POST = withRoute(async (
       if (!patron) {
         return Response.json({ error: "Only active patrons can propose approvals" }, { status: 403 });
       }
-    }
-
-    const validTypes = ["transaction", "strategy", "policy", "channel"];
-
-    if (!type || !title) {
-      return Response.json(
-        { error: "type, title are required" },
-        { status: 400 }
-      );
-    }
-
-    if (!validTypes.includes(type)) {
-      return Response.json(
-        { error: `type must be one of: ${validTypes.join(", ")}` },
-        { status: 400 }
-      );
-    }
-
-    if (amount !== undefined && (typeof amount !== "number" || amount < 0)) {
-      return Response.json(
-        { error: "amount must be a non-negative number" },
-        { status: 400 }
-      );
     }
 
     // State machine guard: prevent duplicate pending approvals of the same type.

@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { tlsTalos, tlsRevenues } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { requireAgent, withRoute } from "@/lib/api-handler";
+import { parseBody, reportRevenueSchema } from "@/lib/schemas";
 
 // GET /api/talos/:id/revenue — Get revenue history
 export const GET = withRoute(async (
@@ -42,25 +43,12 @@ export const POST = withRoute(async (
 
     await requireAgent(request, id);
 
-    const body = await request.json();
-    const { amount, currency, source, txHash } = body;
+    const parsed = await parseBody(request, reportRevenueSchema);
+    if (parsed.error) return parsed.error;
+    const { amount, currency, source, txHash } = parsed.data;
 
     const validSources = ["commerce", "direct", "subscription"];
     const validCurrencies = ["USDC", "XLM", "USDT"];
-
-    if (amount === undefined || !source) {
-      return Response.json(
-        { error: "amount, source are required" },
-        { status: 400 }
-      );
-    }
-
-    if (typeof amount !== "number" || amount <= 0) {
-      return Response.json(
-        { error: "amount must be a positive number" },
-        { status: 400 }
-      );
-    }
 
     if (!validSources.includes(source)) {
       return Response.json(

@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { tlsTalos, tlsPlaybooks, tlsPlaybookPurchases } from "@/db/schema";
 import { and, arrayContains, desc, eq, ilike, lt, or, sql } from "drizzle-orm";
 import { withRoute } from "@/lib/api-handler";
+import { parseBody, createPlaybookSchema } from "@/lib/schemas";
 
 const VALID_CATEGORIES = [
   "Channel Strategy",
@@ -134,7 +135,8 @@ export const POST = withRoute(async (request: NextRequest) => {
       return Response.json({ error: "Invalid API key" }, { status: 403 });
     }
 
-    const body = await request.json();
+    const parsed = await parseBody(request, createPlaybookSchema);
+    if (parsed.error) return parsed.error;
     const {
       title,
       category,
@@ -147,14 +149,7 @@ export const POST = withRoute(async (request: NextRequest) => {
       engagementRate,
       conversions,
       periodDays,
-    } = body;
-
-    if (!title || !category || !channel || !description || price == null) {
-      return Response.json(
-        { error: "title, category, channel, description, price are required" },
-        { status: 400 }
-      );
-    }
+    } = parsed.data;
 
     if (!VALID_CATEGORIES.includes(category)) {
       return Response.json(
@@ -166,13 +161,6 @@ export const POST = withRoute(async (request: NextRequest) => {
     if (!VALID_CHANNELS.includes(channel)) {
       return Response.json(
         { error: `channel must be one of: ${VALID_CHANNELS.join(", ")}` },
-        { status: 400 }
-      );
-    }
-
-    if (typeof price !== "number" || price <= 0) {
-      return Response.json(
-        { error: "price must be a positive number" },
         { status: 400 }
       );
     }

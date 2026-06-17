@@ -52,7 +52,9 @@ export const createTalosSchema = z.object({
 export const reportActivitySchema = z.object({
   type: z.enum(VALID_ACTIVITY_TYPES),
   content: z.string().min(1).max(5000),
-  channel: z.string().max(100).optional(),
+  // Required to match current route behavior (tls_activities.channel is NOT NULL
+  // and the route rejects missing channel). Relaxed from optional → required.
+  channel: z.string().min(1).max(100),
   status: z.string().max(50).optional().default("completed"),
 });
 
@@ -61,8 +63,11 @@ export const reportActivitySchema = z.object({
 export const createApprovalSchema = z.object({
   type: z.enum(VALID_APPROVAL_TYPES),
   title: z.string().min(1).max(200),
-  description: z.string().max(2000).optional(),
-  amount: z.number().nonnegative().optional(),
+  description: z.string().max(2000).nullable().optional(),
+  amount: z.number().nonnegative().nullable().optional(),
+  // Patron-proposal auth field — passed through so the route can authorize
+  // non-agent callers. Added to match the existing route/caller contract.
+  proposerPublicKey: z.string().optional(),
 });
 
 export const decideApprovalSchema = z.object({
@@ -82,7 +87,9 @@ export const transferSchema = z.object({
 // --- Patrons ---
 
 export const becomePatronSchema = z.object({
-  walletAddress: evmAddress,
+  // Plain non-empty string (not strict evmAddress regex): the current route only
+  // checks truthiness and e2e tests register placeholder wallets like "0xE2E_PATRON".
+  walletAddress: z.string().min(1),
   pulseAmount: z.number().positive(),
 });
 
@@ -100,7 +107,9 @@ export const registerServiceSchema = z.object({
 // --- Revenue ---
 
 export const reportRevenueSchema = z.object({
-  amount: z.string().min(1),
+  // Callers (Python agent + frontend + e2e) send amount as a positive number,
+  // and the route checks `<= 0`. Relaxed from z.string() to match reality.
+  amount: z.number().positive(),
   currency: z.string().optional().default("USDC"),
   source: z.string().min(1).max(200),
   txHash: z.string().nullable().optional(),
@@ -139,15 +148,23 @@ export const buyTokenSchema = z.object({
 
 export const createPlaybookSchema = z.object({
   title: z.string().min(1).max(200),
+  // category/channel kept as generic strings here; the route enforces its own
+  // VALID_CATEGORIES/VALID_CHANNELS allow-lists (preserved).
   category: z.string().min(1).max(100),
-  channel: z.string().max(100).optional(),
-  description: z.string().max(5000).optional(),
-  price: z.string().min(1),
+  // Required to match current route behavior (route rejects missing channel).
+  channel: z.string().min(1).max(100),
+  // Required: route rejects missing description.
+  description: z.string().min(1).max(5000),
+  // Callers send price as a positive number; route checks typeof number && > 0.
+  // Relaxed from z.string() to match reality.
+  price: z.number().positive(),
   currency: z.string().optional().default("USDC"),
-  content: z.record(z.string(), z.unknown()).optional(),
+  content: z.record(z.string(), z.unknown()).nullable().optional(),
   tags: z.array(z.string()).optional().default([]),
   impressions: z.number().int().nonnegative().optional().default(0),
-  engagementRate: z.string().optional().default("0"),
+  // Callers send engagementRate as a number (route coerces via String()).
+  // Relaxed from z.string() to match reality.
+  engagementRate: z.number().nonnegative().optional().default(0),
   conversions: z.number().int().nonnegative().optional().default(0),
   periodDays: z.number().int().positive().optional().default(30),
 });

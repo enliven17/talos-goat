@@ -4,6 +4,7 @@ import { tlsTalos, tlsApprovals, tlsPatrons } from "@/db/schema";
 import { and, eq, sql } from "drizzle-orm";
 import { recordApprovalOnChain } from "@/lib/goat";
 import { withRoute } from "@/lib/api-handler";
+import { parseBody, decideApprovalSchema } from "@/lib/schemas";
 
 // PATCH /api/talos/:id/approvals/:approvalId — Approve/reject
 export const PATCH = withRoute(async (
@@ -34,22 +35,9 @@ export const PATCH = withRoute(async (
       return Response.json({ error: "Approval not found" }, { status: 404 });
     }
 
-    const body = await request.json();
-    const { status, decidedBy } = body;
-
-    if (!status || !["approved", "rejected"].includes(status)) {
-      return Response.json(
-        { error: "status must be 'approved' or 'rejected'" },
-        { status: 400 }
-      );
-    }
-
-    if (!decidedBy) {
-      return Response.json(
-        { error: "decidedBy (wallet address) is required" },
-        { status: 400 }
-      );
-    }
+    const parsed = await parseBody(request, decideApprovalSchema);
+    if (parsed.error) return parsed.error;
+    const { status, decidedBy } = parsed.data;
 
     // Verify the caller is an active Patron (Creator or Investor) of this TALOS
     const patron = await db

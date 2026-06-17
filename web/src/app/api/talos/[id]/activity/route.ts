@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { tlsTalos, tlsActivities } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { requireAgent, withRoute } from "@/lib/api-handler";
+import { parseBody, reportActivitySchema } from "@/lib/schemas";
 
 // GET /api/talos/:id/activity — Get activities
 export const GET = withRoute(async (
@@ -41,32 +42,9 @@ export const POST = withRoute(async (
 
     await requireAgent(request, id);
 
-    const body = await request.json();
-    const { type, content, channel, status } = body;
-
-    const validTypes = ["post", "research", "reply", "commerce", "approval"];
-    const validStatuses = ["completed", "pending", "failed"];
-
-    if (!type || !content || !channel) {
-      return Response.json(
-        { error: "type, content, channel are required" },
-        { status: 400 }
-      );
-    }
-
-    if (!validTypes.includes(type)) {
-      return Response.json(
-        { error: `type must be one of: ${validTypes.join(", ")}` },
-        { status: 400 }
-      );
-    }
-
-    if (status && !validStatuses.includes(status)) {
-      return Response.json(
-        { error: `status must be one of: ${validStatuses.join(", ")}` },
-        { status: 400 }
-      );
-    }
+    const parsed = await parseBody(request, reportActivitySchema);
+    if (parsed.error) return parsed.error;
+    const { type, content, channel, status } = parsed.data;
 
     const [activity] = await db
       .insert(tlsActivities)

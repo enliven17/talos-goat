@@ -4,6 +4,7 @@ import { tlsTalos, tlsPatrons } from "@/db/schema";
 import { and, desc, eq } from "drizzle-orm";
 import { getAccountInfo } from "@/lib/goat";
 import { withRoute } from "@/lib/api-handler";
+import { parseBody, becomePatronSchema } from "@/lib/schemas";
 
 // GET /api/talos/:id/patrons — List patrons for a TALOS
 export const GET = withRoute(async (
@@ -39,22 +40,9 @@ export const POST = withRoute(async (
 ) => {
     const { id } = await params;
 
-    const body = await request.json();
-    const { walletAddress, pulseAmount } = body;
-
-    if (!walletAddress) {
-      return Response.json(
-        { error: "walletAddress is required" },
-        { status: 400 }
-      );
-    }
-
-    if (pulseAmount == null || typeof pulseAmount !== "number" || pulseAmount <= 0) {
-      return Response.json(
-        { error: "pulseAmount must be a positive number" },
-        { status: 400 }
-      );
-    }
+    const parsed = await parseBody(request, becomePatronSchema);
+    if (parsed.error) return parsed.error;
+    const { walletAddress, pulseAmount } = parsed.data;
 
     const talos = await db
       .select({
