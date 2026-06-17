@@ -21,6 +21,9 @@ importers:
       '@nomicfoundation/hardhat-toolbox':
         specifier: ^5.0.0
         version: 5.0.0(5d55852ce8c2ef42e2ab3809002df08e)
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
       hardhat:
         specifier: ^2.22.0
         version: 2.28.6(bufferutil@4.1.0)(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.9.3))(typescript@5.9.3)(utf-8-validate@5.0.10)
@@ -37,8 +40,8 @@ importers:
   web:
     dependencies:
       '@goatnetwork/agentkit':
-        specifier: ^0.1.0
-        version: 0.1.2(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
+        specifier: ^0.2.1
+        version: 0.2.2(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
       '@paralleldrive/cuid2':
         specifier: ^3.3.0
         version: 3.3.0
@@ -856,8 +859,9 @@ packages:
     peerDependencies:
       viem: '>=2.0.0'
 
-  '@goatnetwork/agentkit@0.1.2':
-    resolution: {integrity: sha512-3szi7N1jQWZjiSsTJCIOMeWyxcXc+wxNwx+uxiNNqmLreffgSA/AKXsQsu/k/kt/yHYhIXz0KDm18oz3Cr+wVQ==}
+  '@goatnetwork/agentkit@0.2.2':
+    resolution: {integrity: sha512-daG6fsksBMG0ectcOurPDgq+nI4SL/FfkQ0XGjpbzHrbNhxjTu6XMNfe0MCmm00szJqwsWPNNgtd86Yi5FUleA==}
+    hasBin: true
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -3037,6 +3041,10 @@ packages:
   command-line-usage@6.1.3:
     resolution: {integrity: sha512-sH5ZSPr+7UStsloltmDh7Ce5fb8XPlHyoPzTpyyMuYCtervL65+ubVZ6Q61cFtFl62UyJlc8/JwERRbAFPUqgw==}
     engines: {node: '>=8.0.0'}
+
+  commander@12.1.0:
+    resolution: {integrity: sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==}
+    engines: {node: '>=18'}
 
   commander@14.0.2:
     resolution: {integrity: sha512-TywoWNNRbhoD0BXs1P3ZEScW8W5iKrnbithIl0YH+uCmBd0QpPOA8yc82DS3BIE5Ma6FnBVUsJ7wVUDz4dvOWQ==}
@@ -7107,11 +7115,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@goatnetwork/agentkit@0.1.2(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)':
+  '@goatnetwork/agentkit@0.2.2(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)':
     dependencies:
+      commander: 12.1.0
       ethers: 6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       ioredis: 5.11.1
-      tsx: 4.21.0
       viem: 2.47.16(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)
       zod: 3.25.76
       zod-to-json-schema: 3.25.2(zod@3.25.76)
@@ -10131,6 +10139,8 @@ snapshots:
       chalk: 2.4.2
       table-layout: 1.0.2
       typical: 5.2.0
+
+  commander@12.1.0: {}
 
   commander@14.0.2: {}
 
