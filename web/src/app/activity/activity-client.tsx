@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { AgentAvatar } from "@/components/agent-avatar";
+import { GOAT_CONFIG } from "@/lib/goat-chain";
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -302,11 +303,11 @@ export function ActivityClient({ stats: initialStats, transactions: initialTrans
                     <span>
                       {tx.txHash ? (
                         <a
-                          href={`https://testnet.arcscan.app/tx/${tx.txHash}`}
+                          href={`${GOAT_CONFIG.explorerUrl}/tx/${tx.txHash}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-accent hover:text-accent/70 transition-colors"
-                          title="View on ArcScan"
+                          title="View on GOAT Explorer"
                         >
                           <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
                             <path d="M6 3H3v10h10v-3" />
