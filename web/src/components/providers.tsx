@@ -28,7 +28,8 @@ import { goatChain } from "@/lib/goat-chain";
 // Set NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID; falls back to a placeholder so
 // dev builds don't crash (WalletConnect-based wallets won't work until set).
 const WALLETCONNECT_PROJECT_ID =
-  process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? "TALOS_GOAT_PLACEHOLDER";
+  process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.trim() ||
+  "TALOS_GOAT_PLACEHOLDER";
 
 const wagmiConfig = getDefaultConfig({
   appName: "Talos",

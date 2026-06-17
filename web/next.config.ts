@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     // pnpm workspace: next is a symlink → ../../node_modules/.pnpm/…
     // Turbopack follows symlinks, so root must include the monorepo root
     // to avoid "files outside of project directory" security restriction.
-    root: path.resolve(__dirname, ".."),
+    root: process.env.VERCEL ? __dirname : path.resolve(__dirname, ".."),
   },
 };
 
